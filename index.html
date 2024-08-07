@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        #messages {
+            overflow-y: scroll;
+            height: 200px;
+            padding: 0;
+            margin: 0;
+            list-style-type: none;
+        }
+        #messages li {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <ul id="messages"></ul>
+    <form id="form">
+        <input type="text" id="username" placeholder="Username" required>
+        <input type="text" id="message" placeholder="Message" required>
+        <button type="submit">Send message</button>
+    </form>
+
+    <script>
+        const ws = new WebSocket("ws://localhost:8081/ws");
+
+        ws.onmessage = function(event) {
+            const msg = JSON.parse(event.data);
+            const item = document.createElement("li");
+            item.textContent = msg.username + ": " + msg.message;
+            document.getElementById("messages").appendChild(item)
+        }
+
+        document.getElementById("form").onsubmit = function(event) {
+            event.preventDefault();
+            const username = document.getElementById("username").value;
+            const message = document.getElementById("message").value;
+
+            ws.send(JSON.stringify({ username, message }));
+            document.getElementById("message").value = "";
+        }
+    </script>
+</body>
+</html>
